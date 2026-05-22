@@ -1,0 +1,418 @@
+# We Speak Hebrew — Single-File HTML Game
+
+Save this as `index.html` and open it in your browser.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>We Speak Hebrew</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to bottom, #081420, #132b45);
+      color: white;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    #game {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background: rgba(0,0,0,0.35);
+      padding: 14px;
+      border-bottom: 2px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+      color: #8ed6ff;
+      text-shadow: 0 0 10px rgba(142,214,255,0.6);
+    }
+
+    #stats {
+      display: flex;
+      gap: 16px;
+      font-size: 15px;
+    }
+
+    #main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    #map {
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #map::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .location {
+      position: absolute;
+      width: 120px;
+      height: 70px;
+      background: rgba(0,0,0,0.4);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: bold;
+    }
+
+    .location:hover {
+      transform: scale(1.06);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .current {
+      border-color: #8ed6ff;
+      box-shadow: 0 0 16px rgba(142,214,255,0.6);
+    }
+
+    #sidebar {
+      background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .panel {
+      background: rgba(0,0,0,0.25);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .panel h2 {
+      margin-bottom: 10px;
+      color: #ffe38e;
+      font-size: 20px;
+    }
+
+    #dialogue {
+      min-height: 140px;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    button {
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #8ed6ff;
+      color: black;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    #inventory {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .item {
+      background: rgba(255,255,255,0.12);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    #ending {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 40px;
+      z-index: 999;
+    }
+
+    #ending h1 {
+      font-size: 52px;
+      margin-bottom: 18px;
+      color: #8effb0;
+    }
+
+    #ending p {
+      max-width: 700px;
+      line-height: 1.7;
+      font-size: 20px;
+    }
+
+    @media (max-width: 900px) {
+      #main {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        overflow: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <header>
+      <h1>🗺️ We Speak Hebrew</h1>
+
+      <div id="stats">
+        <div>📍 Location: <span id="currentPlace">Jerusalem</span></div>
+        <div>🧩 Clues: <span id="clueCount">0</span>/4</div>
+        <div>⚡ Trust Meter: <span id="trust">50</span></div>
+      </div>
+    </header>
+
+    <div id="main">
+      <div id="map"></div>
+
+      <div id="sidebar">
+        <div class="panel">
+          <h2>📜 Mission</h2>
+          <p>
+            Travel across Israel searching for the hidden legendary city:
+            <strong>New Tel Aviv, Tuvalu</strong>.
+            
+            Some travelers are honest <strong>Hebrew Whisperers</strong> who reveal real clues.
+            Others are mysterious tricksters called <strong>Maze Manipulators</strong> who try to send you in the wrong direction.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2>🧠 Encounter</h2>
+          <div id="dialogue">
+            Click a location on the map to begin your journey.
+          </div>
+
+          <button id="interactBtn">Talk To Stranger</button>
+        </div>
+
+        <div class="panel">
+          <h2>🎒 Clues Collected</h2>
+          <div id="inventory"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ending">
+    <h1>🌅 YOU FOUND NEW TEL AVIV, TUVALU</h1>
+
+    <p>
+      Deep beneath the forgotten tunnels and ancient coastlines,
+      you discovered the mythical holy land of New Tel Aviv, Tuvalu.
+      
+      The whispers were true.
+      
+      The map fragments aligned.
+      
+      The stars above Haifa finally pointed east.
+      
+      Civilization is saved.
+    </p>
+
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+
+  <script>
+    const locations = [
+      {
+        name: "Jerusalem",
+        x: 10,
+        y: 15,
+        truth: true,
+        clue: "The path begins near the northern coast.",
+        item: "Ancient Compass"
+      },
+      {
+        name: "Tel Aviv",
+        x: 40,
+        y: 25,
+        truth: false,
+        clue: "Travel west into the endless ocean immediately.",
+        item: null
+      },
+      {
+        name: "Haifa",
+        x: 65,
+        y: 10,
+        truth: true,
+        clue: "The hidden city lies below the forgotten sands.",
+        item: "Crystal Map Fragment"
+      },
+      {
+        name: "Beersheba",
+        x: 20,
+        y: 65,
+        truth: false,
+        clue: "The treasure is definitely under a random parking lot.",
+        item: null
+      },
+      {
+        name: "Dead Sea",
+        x: 55,
+        y: 60,
+        truth: true,
+        clue: "Four sacred clues reveal the final destination.",
+        item: "Salt Key"
+      },
+      {
+        name: "Nazareth",
+        x: 78,
+        y: 40,
+        truth: true,
+        clue: "The final entrance opens when trust outweighs deception.",
+        item: "Sun Tablet"
+      }
+    ];
+
+    const map = document.getElementById("map");
+    const dialogue = document.getElementById("dialogue");
+    const interactBtn = document.getElementById("interactBtn");
+    const inventory = document.getElementById("inventory");
+    const clueCount = document.getElementById("clueCount");
+    const currentPlace = document.getElementById("currentPlace");
+    const trustMeter = document.getElementById("trust");
+    const ending = document.getElementById("ending");
+
+    let currentLocation = null;
+    let clues = [];
+    let trust = 50;
+
+    function renderMap() {
+      locations.forEach(location => {
+        const div = document.createElement("div");
+        div.className = "location";
+        div.style.left = location.x + "%";
+        div.style.top = location.y + "%";
+        div.innerText = location.name;
+
+        div.addEventListener("click", () => selectLocation(location, div));
+
+        map.appendChild(div);
+        location.element = div;
+      });
+    }
+
+    function selectLocation(location, element) {
+      currentLocation = location;
+
+      document.querySelectorAll(".location").forEach(el => {
+        el.classList.remove("current");
+      });
+
+      element.classList.add("current");
+
+      currentPlace.innerText = location.name;
+
+      dialogue.innerHTML = `
+        You arrive in <strong>${location.name}</strong>.<br><br>
+        Travelers wander the streets.
+        Someone approaches and offers information.
+      `;
+    }
+
+    interactBtn.addEventListener("click", () => {
+      if (!currentLocation) {
+        dialogue.innerHTML = "Choose a location first.";
+        return;
+      }
+
+      const npcType = currentLocation.truth
+        ? "Hebrew Whisperer"
+        : "Maze Manipulator";
+
+      dialogue.innerHTML = `
+        <strong>${npcType}</strong><br><br>
+        “${currentLocation.clue}”
+      `;
+
+      if (currentLocation.truth) {
+        trust += 10;
+
+        if (
+          currentLocation.item &&
+          !clues.includes(currentLocation.item)
+        ) {
+          clues.push(currentLocation.item);
+
+          const item = document.createElement("div");
+          item.className = "item";
+          item.innerText = currentLocation.item;
+          inventory.appendChild(item);
+        }
+      } else {
+        trust -= 12;
+      }
+
+      if (trust < 0) trust = 0;
+      if (trust > 100) trust = 100;
+
+      trustMeter.innerText = trust;
+      clueCount.innerText = clues.length;
+
+      checkVictory();
+    });
+
+    function checkVictory() {
+      if (clues.length >= 4 && trust >= 60) {
+        setTimeout(() => {
+          ending.style.display = "flex";
+        }, 1000);
+      }
+    }
+
+    renderMap();
+  </script>
+</body>
+</html>
+```
