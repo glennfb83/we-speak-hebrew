@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,6 +63,7 @@
       padding: 20px;
       position: relative;
       overflow: hidden;
+      min-height: 500px;
     }
 
     #map::before {
@@ -79,8 +81,8 @@
       position: absolute;
       width: 120px;
       height: 70px;
-      background: rgba(0,0,0,0.4);
-      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.5);
+      border: 2px solid rgba(255,255,255,0.25);
       border-radius: 14px;
       display: flex;
       align-items: center;
@@ -90,11 +92,12 @@
       cursor: pointer;
       transition: 0.2s;
       font-weight: bold;
+      font-size: 13px;
     }
 
     .location:hover {
       transform: scale(1.06);
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.12);
     }
 
     .current {
@@ -183,222 +186,130 @@
       line-height: 1.7;
       font-size: 20px;
     }
-
-    @media (max-width: 900px) {
-      #main {
-        grid-template-columns: 1fr;
-      }
-
-      body {
-        overflow: auto;
-      }
-    }
   </style>
 </head>
 <body>
-  <div id="game">
-    <header>
-      <h1>🗺️ We Speak Hebrew</h1>
 
-      <div id="stats">
-        <div>📍 Location: <span id="currentPlace">Jerusalem</span></div>
-        <div>🧩 Clues: <span id="clueCount">0</span>/4</div>
-        <div>⚡ Trust Meter: <span id="trust">50</span></div>
+<div id="game">
+  <header>
+    <h1>🗺️ We Speak Hebrew</h1>
+    <div id="stats">
+      <div>📍 <span id="currentPlace">Jerusalem</span></div>
+      <div>🧩 <span id="clueCount">0</span>/4</div>
+      <div>⚡ <span id="trust">50</span></div>
+    </div>
+  </header>
+
+  <div id="main">
+    <div id="map"></div>
+
+    <div id="sidebar">
+      <div class="panel">
+        <h2>📜 Mission</h2>
+        <p>
+          You wander a fractured alternate Israel where geography itself is broken.
+          Legends speak of a hidden holy land: <b>New Tel Aviv, Tuvalu</b>.
+          <br><br>
+          Some travelers are <b>Hebrew Whisperers</b> — they tell truth.
+          Others are <b>Yiddish Manipulators</b> — they distort reality.
+          <br><br>
+          Collect relics. Survive deception. Find the truth beneath the map.
+        </p>
       </div>
-    </header>
 
-    <div id="main">
-      <div id="map"></div>
+      <div class="panel">
+        <h2>🧠 Encounter</h2>
+        <div id="dialogue">Click a location to begin.</div>
+        <button id="interactBtn">Talk To Stranger</button>
+      </div>
 
-      <div id="sidebar">
-        <div class="panel">
-          <h2>📜 Mission</h2>
-          <p>
-            You are a wandering explorer dropped into a bizarre alternate version of Israel where every city somehow has the wrong name.
-            
-            Rumors spread through neon markets, desert bus stops, underground tunnels, and ancient alleyways about the legendary hidden holy land:
-            <strong>New Tel Aviv, Tuvalu</strong>.
-            
-            Some strangers are sacred truth-tellers known as the <strong>Hebrew Whisperers</strong>.
-            They speak in cryptic clues and ancient prophecies.
-            
-            Others are dangerous deceivers called the <strong>Yiddish Manipulators</strong>.
-            They thrive on confusion and try to send travelers into endless wrong turns.
-            
-            Find all four sacred relics and uncover the hidden path beneath Israel itself.
-          </p>
-        </div>
-
-        <div class="panel">
-          <h2>🧠 Encounter</h2>
-          <div id="dialogue">
-            Click a location on the map to begin your journey.
-          </div>
-
-          <button id="interactBtn">Talk To Stranger</button>
-        </div>
-
-        <div class="panel">
-          <h2>🎒 Clues Collected</h2>
-          <div id="inventory"></div>
-        </div>
+      <div class="panel">
+        <h2>🎒 Inventory</h2>
+        <div id="inventory"></div>
       </div>
     </div>
   </div>
+</div>
 
-  <div id="ending">
-    <h1>🌅 YOU FOUND NEW TEL AVIV, TUVALU</h1>
+<div id="ending">
+  <h1>🌅 NEW TEL AVIV, TUVALU</h1>
+  <p>
+    Beneath collapsing cities and impossible maps, you uncover the hidden holy land.
+    The Whisperers were right. The Manipulators fade into myth.
+  </p>
+  <button onclick="location.reload()">Restart</button>
+</div>
 
-    <p>
-      Deep beneath the forgotten tunnels and ancient coastlines,
-      you discovered the mythical holy land of New Tel Aviv, Tuvalu.
-      
-      The whispers were true.
-      
-      The map fragments aligned.
-      
-      The stars above Haifa finally pointed east.
-      
-      Civilization is saved.
-    </p>
+<script>
+const locations = [
+  { name:"Jerusalem", x:10, y:15, truth:true, clue:"The coast hides the first gate.", item:"Ancient Compass", vibe:"Stone alleys glow under fading light." },
+  { name:"Macau", x:40, y:25, truth:false, clue:"The city is buried under desert glass.", item:null, vibe:"Neon signs flicker in impossible winds." },
+  { name:"Germany", x:65, y:10, truth:true, clue:"Northern tunnels hide the second relic.", item:"Crystal Fragment", vibe:"Cold winds cut through silent streets." },
+  { name:"Bulgaria", x:20, y:65, truth:false, clue:"Turn left until reality breaks.", item:null, vibe:"Dust storms erase the horizon." },
+  { name:"Papua New Guinea", x:55, y:60, truth:true, clue:"Four relics open the final path.", item:"Salt Key", vibe:"Ocean air hums with ancient energy." },
+  { name:"Eritrea", x:78, y:40, truth:true, clue:"Trust is the final key.", item:"Sun Tablet", vibe:"Whispers echo across stone cliffs." }
+];
 
-    <button onclick="location.reload()">Play Again</button>
-  </div>
+const map=document.getElementById("map");
+const dialogue=document.getElementById("dialogue");
+const btn=document.getElementById("interactBtn");
+const inv=document.getElementById("inventory");
+const clueCount=document.getElementById("clueCount");
+const currentPlace=document.getElementById("currentPlace");
+const trustEl=document.getElementById("trust");
+const ending=document.getElementById("ending");
 
-  <script>
-    const locations = [
-      {
-        name: "Jerusalem",
-        x: 10,
-        y: 15,
-        truth: true,
-        clue: "The Whisperers say the stars over the coast point toward the first buried gate.",
-        item: "Ancient Compass",
-        vibe: "Rain taps against old stone walls while candlelight flickers through crowded alleyways."
-      },
-      {
-        name: "Macau",
-        x: 40,
-        y: 25,
-        truth: false,
-        clue: "Forget the coast. The city floats somewhere under a parking garage in the desert.",
-        item: null,
-        vibe: "Bright signs buzz over packed markets where nobody seems fully trustworthy."
-      },
-      {
-        name: "Germany",
-        x: 65,
-        y: 10,
-        truth: true,
-        clue: "The ancient tunnels below the north hide the second relic beneath white sand.",
-        item: "Crystal Map Fragment",
-        vibe: "Cold sea wind rushes through steep streets overlooking glowing water."
-      },
-      {
-        name: "Bulgaria",
-        x: 20,
-        y: 65,
-        truth: false,
-        clue: "Take three left turns, scream into the sky, and the holy land wil
+let current=null;
+let clues=[];
+let trust=50;
 
-    const map = document.getElementById("map");
-    const dialogue = document.getElementById("dialogue");
-    const interactBtn = document.getElementById("interactBtn");
-    const inventory = document.getElementById("inventory");
-    const clueCount = document.getElementById("clueCount");
-    const currentPlace = document.getElementById("currentPlace");
-    const trustMeter = document.getElementById("trust");
-    const ending = document.getElementById("ending");
+function render(){
+  locations.forEach(l=>{
+    const d=document.createElement("div");
+    d.className="location";
+    d.style.left=l.x+"%";
+    d.style.top=l.y+"%";
+    d.innerText=l.name;
+    d.onclick=()=>{
+      current=l;
+      document.querySelectorAll(".location").forEach(x=>x.classList.remove("current"));
+      d.classList.add("current");
+      currentPlace.innerText=l.name;
+      dialogue.innerHTML=`You arrive in <b>${l.name}</b><br><br>${l.vibe}`;
+    };
+    map.appendChild(d);
+  });
+}
 
-    let currentLocation = null;
-    let clues = [];
-    let trust = 50;
+btn.onclick=()=>{
+  if(!current) return;
 
-    function renderMap() {
-      locations.forEach(location => {
-        const div = document.createElement("div");
-        div.className = "location";
-        div.style.left = location.x + "%";
-        div.style.top = location.y + "%";
-        div.innerText = location.name;
+  const npc=current.truth?"Hebrew Whisperer":"Yiddish Manipulator";
+  dialogue.innerHTML=`<b>${npc}</b><br><br>"${current.clue}"`;
 
-        div.addEventListener("click", () => selectLocation(location, div));
-
-        map.appendChild(div);
-        location.element = div;
-      });
+  if(current.truth){
+    trust+=10;
+    if(current.item && !clues.includes(current.item)){
+      clues.push(current.item);
+      const i=document.createElement("div");
+      i.className="item";
+      i.innerText=current.item;
+      inv.appendChild(i);
     }
+  } else {
+    trust-=12;
+  }
 
-    function selectLocation(location, element) {
-      currentLocation = location;
+  trust=Math.max(0,Math.min(100,trust));
+  trustEl.innerText=trust;
+  clueCount.innerText=clues.length;
 
-      document.querySelectorAll(".location").forEach(el => {
-        el.classList.remove("current");
-      });
+  if(clues.length>=4 && trust>=60){
+    setTimeout(()=>ending.style.display="flex",800);
+  }
+};
 
-      element.classList.add("current");
-
-      currentPlace.innerText = location.name;
-
-      dialogue.innerHTML = `
-        You arrive in <strong>${location.name}</strong>.<br><br>
-        Travelers wander the streets.
-        Someone approaches and offers information.
-      `;
-    }
-
-    interactBtn.addEventListener("click", () => {
-      if (!currentLocation) {
-        dialogue.innerHTML = "Choose a location first.";
-        return;
-      }
-
-      const npcType = currentLocation.truth
-        ? "Hebrew Whisperer"
-        : "Maze Manipulator";
-
-      dialogue.innerHTML = `
-        <strong>${npcType}</strong><br><br>
-        “${currentLocation.clue}”
-      `;
-
-      if (currentLocation.truth) {
-        trust += 10;
-
-        if (
-          currentLocation.item &&
-          !clues.includes(currentLocation.item)
-        ) {
-          clues.push(currentLocation.item);
-
-          const item = document.createElement("div");
-          item.className = "item";
-          item.innerText = currentLocation.item;
-          inventory.appendChild(item);
-        }
-      } else {
-        trust -= 12;
-      }
-
-      if (trust < 0) trust = 0;
-      if (trust > 100) trust = 100;
-
-      trustMeter.innerText = trust;
-      clueCount.innerText = clues.length;
-
-      checkVictory();
-    });
-
-    function checkVictory() {
-      if (clues.length >= 4 && trust >= 60) {
-        setTimeout(() => {
-          ending.style.display = "flex";
-        }, 1000);
-      }
-    }
-
-    renderMap();
-  </script>
+render();
+</script>
 </body>
 </html>
-
