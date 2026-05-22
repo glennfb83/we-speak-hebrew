@@ -1,8 +1,3 @@
-# We Speak Hebrew — Single-File HTML Game
-
-Save this as `index.html` and open it in your browser.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,11 +214,18 @@ Save this as `index.html` and open it in your browser.
         <div class="panel">
           <h2>📜 Mission</h2>
           <p>
-            Travel across Israel searching for the hidden legendary city:
+            You are a wandering explorer dropped into a bizarre alternate version of Israel where every city somehow has the wrong name.
+            
+            Rumors spread through neon markets, desert bus stops, underground tunnels, and ancient alleyways about the legendary hidden holy land:
             <strong>New Tel Aviv, Tuvalu</strong>.
             
-            Some travelers are honest <strong>Hebrew Whisperers</strong> who reveal real clues.
-            Others are mysterious tricksters called <strong>Maze Manipulators</strong> who try to send you in the wrong direction.
+            Some strangers are sacred truth-tellers known as the <strong>Hebrew Whisperers</strong>.
+            They speak in cryptic clues and ancient prophecies.
+            
+            Others are dangerous deceivers called the <strong>Yiddish Manipulators</strong>.
+            They thrive on confusion and try to send travelers into endless wrong turns.
+            
+            Find all four sacred relics and uncover the hidden path beneath Israel itself.
           </p>
         </div>
 
@@ -270,50 +272,34 @@ Save this as `index.html` and open it in your browser.
         x: 10,
         y: 15,
         truth: true,
-        clue: "The path begins near the northern coast.",
-        item: "Ancient Compass"
+        clue: "The Whisperers say the stars over the coast point toward the first buried gate.",
+        item: "Ancient Compass",
+        vibe: "Rain taps against old stone walls while candlelight flickers through crowded alleyways."
       },
       {
-        name: "Tel Aviv",
+        name: "Macau",
         x: 40,
         y: 25,
         truth: false,
-        clue: "Travel west into the endless ocean immediately.",
-        item: null
+        clue: "Forget the coast. The city floats somewhere under a parking garage in the desert.",
+        item: null,
+        vibe: "Bright signs buzz over packed markets where nobody seems fully trustworthy."
       },
       {
-        name: "Haifa",
+        name: "Germany",
         x: 65,
         y: 10,
         truth: true,
-        clue: "The hidden city lies below the forgotten sands.",
-        item: "Crystal Map Fragment"
+        clue: "The ancient tunnels below the north hide the second relic beneath white sand.",
+        item: "Crystal Map Fragment",
+        vibe: "Cold sea wind rushes through steep streets overlooking glowing water."
       },
       {
-        name: "Beersheba",
+        name: "Bulgaria",
         x: 20,
         y: 65,
         truth: false,
-        clue: "The treasure is definitely under a random parking lot.",
-        item: null
-      },
-      {
-        name: "Dead Sea",
-        x: 55,
-        y: 60,
-        truth: true,
-        clue: "Four sacred clues reveal the final destination.",
-        item: "Salt Key"
-      },
-      {
-        name: "Nazareth",
-        x: 78,
-        y: 40,
-        truth: true,
-        clue: "The final entrance opens when trust outweighs deception.",
-        item: "Sun Tablet"
-      }
-    ];
+        clue: "Take three left turns, scream into the sky, and the holy land wil
 
     const map = document.getElementById("map");
     const dialogue = document.getElementById("dialogue");
@@ -415,4 +401,4 @@ Save this as `index.html` and open it in your browser.
   </script>
 </body>
 </html>
-```
+
